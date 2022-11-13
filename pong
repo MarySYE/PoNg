@@ -1,0 +1,162 @@
+//variáveis da bolinha
+xbolinha = 300
+ybolinha = 200
+dbolinha = 20
+raio = dbolinha/2
+vxbolinha = 5
+vybolinha = 5
+
+//variáveis das raquetes
+wraquete = 10
+hraquete = 90
+
+//variáveis do jogador
+xjogador = 10
+yjogador = 150
+
+//variáveis do PC
+xpc = 580
+ypc = 150
+
+//variáveis do placar do jogo
+pontosjogador = 0
+pontospc = 0
+
+//variáveis referentes ao som do jogo
+let raquetada;
+let ponto;
+let trilha;
+
+//função dos sons
+function preload(){
+  trilha = loadSound("trilha.mp3");
+  ponto = loadSound("ponto.mp3");
+  raquetada = loadSound("raquetada.mp3");
+}
+
+//função do plano
+function setup() {
+  createCanvas(600,400);
+  trilha.loop();
+}
+
+//função que executa em looping as outras dentro dela
+function draw() {
+  background(0); //cor do background
+  bolinha(); //desenho da bolinha
+  vbolinha(); //movimento da bolinha
+  colisaobolinha(); //colisão da bolinha com a borda
+  jogador(); //desenho do jogador
+  vjogador(); //movimento da raquete do jogador
+  colisaojogador(); //colisão do jogador com a bolinha
+  pc(); //desenho da raquete do oponente
+  vpc(); //velocidade da raquete do oponente
+  colisaopc(); //colisão da raquete do oponente com a bolinha
+  placar();
+  contagemplacar();
+}
+
+//FUNÇÕES REFERENTES A BOLINHA
+
+//desenho da bolinha
+function bolinha(){
+  circle(xbolinha,ybolinha,dbolinha);
+}
+
+//movimentação da bolinha
+function vbolinha(){
+  xbolinha += vxbolinha;
+  ybolinha += vybolinha;
+}
+
+//colisão da bolinha com a borda
+  //é importante adicionar o raio para que as extremidades da bolinha colidam com a borda e não seu centro
+function colisaobolinha(){
+  if (xbolinha + raio > width || xbolinha - raio < 0) {
+    vxbolinha *= -1;
+  }
+   
+  if (ybolinha + raio > height || ybolinha - raio < 0){
+    vybolinha *= -1;
+  }
+}
+
+//FUNÇÕES REFERENTES AO JOGADOR
+
+//desenho da raquete do jogador
+function jogador(){
+  rect(xjogador,yjogador,wraquete,hraquete);
+}
+
+//movimento da raquete do jogador
+function vjogador(){
+  if (keyIsDown(UP_ARROW)){
+      yjogador -=5
+      }
+  if (keyIsDown(DOWN_ARROW)){
+    yjogador +=5
+  }
+}
+
+//colisão da raquete do jogador com a bolinha
+  //um detalhe importante sobre esta função é que as posições y dos objetos tem que ser especificados também
+    //sempre  tenho dificuldade nesta parte do programa, o que me ajuda é o seguinte esquema do fórum: https://cursos.alura.com.br/forum/topico-sugestao-esquema-para-entender-o-codigo-da-colisao-da-bola-com-a-raquete-249661
+function colisaojogador(){
+  if (xbolinha - raio < xjogador + wraquete
+  && ybolinha - raio < yjogador + hraquete
+  && ybolinha + raio > yjogador){
+      vxbolinha *= -1
+      raquetada.play();
+      }
+}
+
+//FUNÇÕES REFERENTES AO PC (OPONENTE)
+
+//desenho da raquete do PC
+  //como o tamanho das raquetes serão iguais, então o comprimento e a altura do jogador serão reciclados neste código
+function pc(){
+  rect(xpc,ypc,wraquete,hraquete);
+}
+
+//movimento da raquete do PC
+  //para o movimento da raquete do oponente é dada a posição da bolinha, a da raquete e do comprimento da raquete para que a bolinha possa encostar em qualquer parte do oponente
+function vpc(){
+  vypc = ybolinha - ypc - wraquete/2 - 30
+  ypc += vypc
+}
+
+//colisão da raquete do oponente 
+function colisaopc(){
+  if(xbolinha + raio > xpc 
+  && ybolinha - raio < ypc + hraquete
+  && ybolinha + raio > ypc){
+     vxbolinha *= -1
+     raquetada.play();
+     }
+}
+
+//FUNÇÕES REFERENTES AO PLACAR
+
+
+//mostrando o placar 
+function placar(){
+  textSize(20);
+  textStyle(BOLD);
+  textAlign(CENTER);
+  rect(140, 10, 50, 20);
+  text(pontosjogador,165,27);
+  rect(440, 10, 50, 20);
+  text(pontospc,465,27);
+}
+
+//adicionando pontos 
+function contagemplacar(){
+  if (xbolinha  > 590){
+      pontosjogador += 1
+      ponto.play();
+      }
+  if (xbolinha < 10){
+      pontospc += 1
+      ponto.play();
+      }
+}
